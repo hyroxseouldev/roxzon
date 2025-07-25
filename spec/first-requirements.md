@@ -4,7 +4,7 @@
 
 - **프로젝트명**: 하이록스 커뮤니티 플랫폼
 - **목적**: 하이록스 운동을 하는 사람들을 위한 커뮤니티 및 운동 프로그램 공유 플랫폼
-- **기술 스택**: Next.js 15.4.4, Supabase, shadcn, tailwind 4.0
+- **기술 스택**: Next.js 15.4.4, Supabase, shadcn, tailwind 4.0, framer motion
 - **타겟 사용자**: 하이록스 운동 참여자 및 관심자
 
 ## 2. 핵심 기능
