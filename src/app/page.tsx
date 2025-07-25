@@ -1,12 +1,11 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Zap,
-  Users,
-  Trophy,
   Target,
-  Clock,
   MapPin,
+  Heart,
+  MessageCircle,
+  User,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,9 +17,21 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BackgroundPaths } from "@/components/ui/background-path";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 export default function Home() {
-  const featuredPosts = [
+  const currentPage = 1;
+  const totalPages = 5;
+
+  const communityPosts = [
     {
       id: 1,
       title: "15분 하체 집중 HIIT",
@@ -28,8 +39,8 @@ export default function Home() {
       difficulty: "중급",
       location: "강남구",
       likes: 24,
+      comments: 8,
       timeAgo: "2시간 전",
-      thumbnail: null,
     },
     {
       id: 2,
@@ -38,8 +49,8 @@ export default function Home() {
       difficulty: "초급",
       location: "마포구",
       likes: 18,
+      comments: 5,
       timeAgo: "5시간 전",
-      thumbnail: null,
     },
     {
       id: 3,
@@ -48,35 +59,178 @@ export default function Home() {
       difficulty: "고급",
       location: "송파구",
       likes: 31,
+      comments: 12,
       timeAgo: "1일 전",
-      thumbnail: null,
-    },
-  ];
-
-  const difficultyPrograms = [
-    {
-      level: "초급",
-      title: "HIIT 입문자 프로그램",
-      description: "운동을 처음 시작하는 분들을 위한 기본 HIIT 루틴",
-      duration: "15-20분",
-      exercises: "5-7개",
-      color: "bg-green-500",
     },
     {
-      level: "중급",
-      title: "체력 향상 프로그램",
-      description: "기본기가 있는 분들을 위한 강도 높은 운동",
-      duration: "20-30분",
-      exercises: "8-12개",
-      color: "bg-orange-500",
+      id: 4,
+      title: "아침 운동 루틴 추천",
+      author: "새벽운동러",
+      difficulty: "초급",
+      location: "서초구",
+      likes: 15,
+      comments: 3,
+      timeAgo: "1일 전",
     },
     {
-      level: "고급",
-      title: "전문가 도전 프로그램",
-      description: "최고 강도의 운동으로 한계를 뛰어넘어보세요",
-      duration: "30-45분",
-      exercises: "12-15개",
-      color: "bg-red-500",
+      id: 5,
+      title: "다이어트 성공 후기",
+      author: "다이어터",
+      difficulty: "중급",
+      location: "용산구",
+      likes: 42,
+      comments: 18,
+      timeAgo: "2일 전",
+    },
+    {
+      id: 6,
+      title: "홈트 공간 꾸미기 팁",
+      author: "홈트마스터",
+      difficulty: "초급",
+      location: "노원구",
+      likes: 27,
+      comments: 9,
+      timeAgo: "2일 전",
+    },
+    {
+      id: 7,
+      title: "근력운동과 유산소 조합",
+      author: "피트니스코치",
+      difficulty: "고급",
+      location: "강남구",
+      likes: 35,
+      comments: 14,
+      timeAgo: "3일 전",
+    },
+    {
+      id: 8,
+      title: "운동 후 회복 음식",
+      author: "건강식단러",
+      difficulty: "중급",
+      location: "마포구",
+      likes: 22,
+      comments: 7,
+      timeAgo: "3일 전",
+    },
+    {
+      id: 9,
+      title: "무릎 부상 예방 운동",
+      author: "재활전문가",
+      difficulty: "초급",
+      location: "강서구",
+      likes: 19,
+      comments: 4,
+      timeAgo: "4일 전",
+    },
+    {
+      id: 10,
+      title: "크로스핏 입문기",
+      author: "크로스핏러버",
+      difficulty: "고급",
+      location: "송파구",
+      likes: 38,
+      comments: 16,
+      timeAgo: "4일 전",
+    },
+    {
+      id: 11,
+      title: "스트레칭의 중요성",
+      author: "유연성마스터",
+      difficulty: "초급",
+      location: "성북구",
+      likes: 16,
+      comments: 6,
+      timeAgo: "5일 전",
+    },
+    {
+      id: 12,
+      title: "운동 동기부여 방법",
+      author: "모티베이터",
+      difficulty: "중급",
+      location: "은평구",
+      likes: 29,
+      comments: 11,
+      timeAgo: "5일 전",
+    },
+    {
+      id: 13,
+      title: "플랭크 30일 챌린지",
+      author: "코어킹",
+      difficulty: "중급",
+      location: "관악구",
+      likes: 33,
+      comments: 15,
+      timeAgo: "6일 전",
+    },
+    {
+      id: 14,
+      title: "운동화 선택 가이드",
+      author: "기어전문가",
+      difficulty: "초급",
+      location: "동작구",
+      likes: 21,
+      comments: 8,
+      timeAgo: "6일 전",
+    },
+    {
+      id: 15,
+      title: "체중 감량 성공 스토리",
+      author: "변신성공러",
+      difficulty: "중급",
+      location: "중랑구",
+      likes: 45,
+      comments: 22,
+      timeAgo: "1주 전",
+    },
+    {
+      id: 16,
+      title: "근육량 늘리기 프로그램",
+      author: "벌크업전문가",
+      difficulty: "고급",
+      location: "강동구",
+      likes: 37,
+      comments: 13,
+      timeAgo: "1주 전",
+    },
+    {
+      id: 17,
+      title: "요가와 HIIT 조합",
+      author: "요가러버",
+      difficulty: "중급",
+      location: "서대문구",
+      likes: 26,
+      comments: 10,
+      timeAgo: "1주 전",
+    },
+    {
+      id: 18,
+      title: "운동 일지 작성법",
+      author: "기록매니아",
+      difficulty: "초급",
+      location: "영등포구",
+      likes: 14,
+      comments: 5,
+      timeAgo: "1주 전",
+    },
+    {
+      id: 19,
+      title: "고강도 인터벌 훈련",
+      author: "인터벌킹",
+      difficulty: "고급",
+      location: "금천구",
+      likes: 41,
+      comments: 19,
+      timeAgo: "1주 전",
+    },
+    {
+      id: 20,
+      title: "운동 습관 만들기",
+      author: "습관마에스트로",
+      difficulty: "초급",
+      location: "구로구",
+      likes: 18,
+      comments: 7,
+      timeAgo: "1주 전",
     },
   ];
 
@@ -84,25 +238,25 @@ export default function Home() {
     <div className="space-y-16">
       <BackgroundPaths
         title="하이록스를 더 즐기는 방법"
-        description="크루 활동을 공유하고 새로운 만남을 이어가세요."
+        description="커뮤니티 활동을 공유하고 새로운 만남을 이어가세요."
       />
 
-      {/* Latest Posts Section */}
+      {/* Community Posts Section */}
       <section className="container mx-auto max-w-7xl px-4">
         <div className="space-y-8">
           <div className="text-center space-y-4">
             <h2 className="text-3xl font-bold text-foreground">
-              최신 운동 프로그램
+              커뮤니티 게시글
             </h2>
             <p className="text-muted-foreground">
-              커뮤니티에서 가장 인기 있는 최신 HIIT 프로그램을 확인해보세요
+              하이록스 커뮤니티의 다양한 운동 정보와 경험을 공유해보세요
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredPosts.map((post) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {communityPosts.map((post) => (
               <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="space-y-3">
+                <CardHeader className="space-y-2 pb-3">
                   <div className="flex items-center justify-between">
                     <Badge
                       variant={
@@ -112,108 +266,91 @@ export default function Home() {
                           ? "default"
                           : "destructive"
                       }
+                      className="text-xs"
                     >
                       {post.difficulty}
                     </Badge>
-                    <div className="flex items-center text-sm text-muted-foreground">
+                    <div className="flex items-center text-xs text-muted-foreground">
                       <MapPin className="h-3 w-3 mr-1" />
                       {post.location}
                     </div>
                   </div>
-                  <CardTitle className="text-lg">{post.title}</CardTitle>
+                  <CardTitle className="text-sm line-clamp-2 leading-tight">
+                    {post.title}
+                  </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="h-40 bg-muted rounded-md flex items-center justify-center">
-                      <Target className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        by {post.author}
-                      </span>
-                      <span className="text-muted-foreground">
-                        {post.timeAgo}
-                      </span>
-                    </div>
+                <CardContent className="pt-0 pb-3">
+                  <div className="h-24 bg-muted rounded-md flex items-center justify-center mb-3">
+                    <Target className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <User className="h-3 w-3 mr-1" />
+                    <span className="truncate">{post.author}</span>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                      <span>❤️ {post.likes}</span>
+                <CardFooter className="pt-0 space-y-2">
+                  <div className="flex items-center justify-between w-full text-xs">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-1">
+                        <Heart className="h-3 w-3 text-red-500" />
+                        <span>{post.likes}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <MessageCircle className="h-3 w-3 text-blue-500" />
+                        <span>{post.comments}</span>
+                      </div>
                     </div>
-                    <Link href={`/posts/${post.id}`}>
-                      <Button variant="ghost" size="sm">
-                        보기
-                        <ArrowRight className="ml-1 h-3 w-3" />
-                      </Button>
-                    </Link>
+                    <span className="text-muted-foreground">
+                      {post.timeAgo}
+                    </span>
                   </div>
+                  <Link href={`/posts/${post.id}`} className="w-full">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full text-xs"
+                    >
+                      보기
+                      <ArrowRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </Link>
                 </CardFooter>
               </Card>
             ))}
           </div>
 
-          <div className="text-center">
-            <Link href="/posts">
-              <Button variant="outline" size="lg">
-                모든 게시글 보기
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Difficulty Programs Section */}
-      <section className="bg-muted/20 border-y border-border/40">
-        <div className="container mx-auto max-w-7xl px-4 py-16">
-          <div className="space-y-8">
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl font-bold text-foreground">
-                난이도별 프로그램
-              </h2>
-              <p className="text-muted-foreground">
-                당신의 레벨에 맞는 HIIT 프로그램을 찾아보세요
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {difficultyPrograms.map((program) => (
-                <Card
-                  key={program.level}
-                  className="hover:shadow-lg transition-shadow"
-                >
-                  <CardHeader>
-                    <div className="flex items-center space-x-3">
-                      <div
-                        className={`w-4 h-4 rounded-full ${program.color}`}
-                      />
-                      <Badge variant="outline">{program.level}</Badge>
-                    </div>
-                    <CardTitle>{program.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-muted-foreground">
-                      {program.description}
-                    </p>
-                    <div className="space-y-2">
-                      <div className="flex items-center text-sm">
-                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>운동 시간: {program.duration}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <Target className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span>운동 개수: {program.exercises}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button className="w-full">프로그램 시작하기</Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+          {/* Pagination */}
+          <div className="flex justify-center pb-8">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    className={
+                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                    }
+                  />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">1</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">2</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationLink href="#">3</PaginationLink>
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    className="pointer-events-none opacity-50"
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         </div>
       </section>
