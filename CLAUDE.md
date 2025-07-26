@@ -51,7 +51,8 @@ src/
 ## UI Component System
 
 The project uses shadcn/ui with "new-york" style variant. All components are in `src/components/ui/` and include:
-- Form components (Button, Input, Select, Checkbox, etc.)  
+
+- Form components (Button, Input, Select, Checkbox, etc.)
 - Layout components (Card, Sheet, Sidebar, etc.)
 - Feedback components (Alert, Toast via Sonner, etc.)
 - Navigation components (Breadcrumb, Menubar, etc.)
@@ -71,6 +72,7 @@ The project uses shadcn/ui with "new-york" style variant. All components are in 
 ## Key Features (from spec/first-requirements.md)
 
 The application is designed as a Korean HIIT community with:
+
 - User authentication via Supabase Auth
 - Post creation with image uploads (up to 5 images)
 - Exercise difficulty levels (초급/중급/고급 - Beginner/Intermediate/Advanced)
@@ -81,15 +83,16 @@ The application is designed as a Korean HIIT community with:
 ## Database Schema (Planned)
 
 - **Users**: Profile management with nickname and avatar
-- **Posts**: Content with images, difficulty, location, Instagram links
+- **Communities**: It is Post, Content with images, difficulty, location, Instagram links
 - **Likes**: User-post relationships (unique constraint)
 - **Comments**: Nested comments with parent_id structure
 
 ## Path Aliases
 
 Configure in components.json:
+
 - `@/components` → src/components
-- `@/lib` → src/lib  
+- `@/lib` → src/lib
 - `@/hooks` → src/hooks
 - `@/ui` → src/components/ui
 

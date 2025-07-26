@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Target,
@@ -26,8 +30,24 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
+  const { user, loading, checkUserProfile, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkProfile = async () => {
+      if (!loading && isAuthenticated && user) {
+        const hasCompleteProfile = await checkUserProfile(user.id);
+        if (!hasCompleteProfile) {
+          router.push('/onboarding');
+        }
+      }
+    };
+
+    checkProfile();
+  }, [user, loading, isAuthenticated, checkUserProfile, router]);
   const currentPage = 1;
   const totalPages = 5;
 
@@ -244,15 +264,6 @@ export default function Home() {
       {/* Community Posts Section */}
       <section className="container mx-auto max-w-7xl px-4">
         <div className="space-y-8">
-          <div className="text-center space-y-4">
-            <h2 className="text-3xl font-bold text-foreground">
-              커뮤니티 게시글
-            </h2>
-            <p className="text-muted-foreground">
-              하이록스 커뮤니티의 다양한 운동 정보와 경험을 공유해보세요
-            </p>
-          </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {communityPosts.map((post) => (
               <Card key={post.id} className="hover:shadow-lg transition-shadow">
