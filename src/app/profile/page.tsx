@@ -8,16 +8,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Upload, Loader2 } from "lucide-react";
+import { Camera, Upload, Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
-export default function OnboardingPage() {
+export default function ProfilePage() {
   const { user, loading, loadUserProfile } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     nickname: "",
     bio: "",
@@ -27,18 +29,69 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
+      return;
     }
 
     if (user) {
-      setProfileData({
-        nickname:
-          user.user_metadata?.full_name || user.user_metadata?.name || "",
-        bio: "",
-        avatar_url:
-          user.user_metadata?.avatar_url || user.user_metadata?.picture || "",
-      });
+      loadProfileData();
     }
   }, [user, loading, router]);
+
+  const loadProfileData = async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+
+      // 사용자 프로필 데이터 가져오기
+      const { data: existingUser, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error && error.code !== "PGRST116") {
+        console.error("프로필 로드 오류:", error);
+        toast.error("프로필을 불러오는데 실패했습니다.");
+        return;
+      }
+
+      if (existingUser) {
+        console.log("Existing user data:", existingUser);
+        console.log("User metadata:", user.user_metadata);
+        const avatarUrl =
+          existingUser.avatar_url ||
+          user.user_metadata?.avatar_url ||
+          user.user_metadata?.picture ||
+          "";
+        console.log("Final avatar URL:", avatarUrl);
+
+        setProfileData({
+          nickname: existingUser.nickname || "",
+          bio: existingUser.bio || "",
+          avatar_url: avatarUrl,
+        });
+      } else {
+        // 기존 사용자가 없으면 기본값 설정
+        console.log("No existing user, using metadata:", user.user_metadata);
+        const avatarUrl =
+          user.user_metadata?.avatar_url || user.user_metadata?.picture || "";
+        console.log("Default avatar URL:", avatarUrl);
+
+        setProfileData({
+          nickname:
+            user.user_metadata?.full_name || user.user_metadata?.name || "",
+          bio: "",
+          avatar_url: avatarUrl,
+        });
+      }
+    } catch (error) {
+      console.error("프로필 로드 중 오류:", error);
+      toast.error("프로필을 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleImageUpload = async (file: File) => {
     if (!user) return;
@@ -165,13 +218,13 @@ export default function OnboardingPage() {
       }
 
       console.log("프로필 저장 성공");
-      
+
       // 헤더의 아바타 업데이트를 위해 프로필 다시 로드
-      if (loadUserProfile) {
+      if (loadUserProfile && user?.id) {
         await loadUserProfile(user.id);
       }
-      
-      toast.success("프로필이 성공적으로 저장되었습니다!");
+
+      toast.success("프로필이 성공적으로 수정되었습니다!");
       router.push("/");
     } catch (error) {
       console.error("프로필 처리 중 오류:", error);
@@ -185,7 +238,7 @@ export default function OnboardingPage() {
     }
   };
 
-  if (loading) {
+  if (loading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="flex items-center space-x-2 text-white">
@@ -204,10 +257,20 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-black">
       <div className="w-full max-w-md bg-zinc-900 rounded-lg shadow-2xl p-8 border border-zinc-800">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white mb-2">환영합니다! 🎉</h1>
-          <p className="text-zinc-400">
-            프로필을 설정하여 하이록스 커뮤니티를 시작해보세요
-          </p>
+          <div className="flex items-center justify-center mb-4">
+            <Link href="/">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-zinc-400 hover:text-white"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                돌아가기
+              </Button>
+            </Link>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-2">프로필 수정</h1>
+          <p className="text-zinc-400">프로필 정보를 수정하고 저장하세요</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -323,7 +386,7 @@ export default function OnboardingPage() {
             ) : (
               <>
                 <Upload className="h-4 w-4 mr-2" />
-                프로필 저장하고 시작하기
+                프로필 수정 완료
               </>
             )}
           </Button>

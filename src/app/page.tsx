@@ -41,7 +41,7 @@ export default function Home() {
       if (!loading && isAuthenticated && user) {
         const hasCompleteProfile = await checkUserProfile(user.id);
         if (!hasCompleteProfile) {
-          router.push('/onboarding');
+          router.push("/onboarding");
         }
       }
     };
@@ -260,111 +260,6 @@ export default function Home() {
         title="하이록스를 더 즐기는 방법"
         description="커뮤니티 활동을 공유하고 새로운 만남을 이어가세요."
       />
-
-      {/* Community Posts Section */}
-      <section className="container mx-auto max-w-7xl px-4">
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {communityPosts.map((post) => (
-              <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="space-y-2 pb-3">
-                  <div className="flex items-center justify-between">
-                    <Badge
-                      variant={
-                        post.difficulty === "초급"
-                          ? "secondary"
-                          : post.difficulty === "중급"
-                          ? "default"
-                          : "destructive"
-                      }
-                      className="text-xs"
-                    >
-                      {post.difficulty}
-                    </Badge>
-                    <div className="flex items-center text-xs text-muted-foreground">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {post.location}
-                    </div>
-                  </div>
-                  <CardTitle className="text-sm line-clamp-2 leading-tight">
-                    {post.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 pb-3">
-                  <div className="h-24 bg-muted rounded-md flex items-center justify-center mb-3">
-                    <Target className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <User className="h-3 w-3 mr-1" />
-                    <span className="truncate">{post.author}</span>
-                  </div>
-                </CardContent>
-                <CardFooter className="pt-0 space-y-2">
-                  <div className="flex items-center justify-between w-full text-xs">
-                    <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-1">
-                        <Heart className="h-3 w-3 text-red-500" />
-                        <span>{post.likes}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <MessageCircle className="h-3 w-3 text-blue-500" />
-                        <span>{post.comments}</span>
-                      </div>
-                    </div>
-                    <span className="text-muted-foreground">
-                      {post.timeAgo}
-                    </span>
-                  </div>
-                  <Link href={`/posts/${post.id}`} className="w-full">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-xs"
-                    >
-                      보기
-                      <ArrowRight className="ml-1 h-3 w-3" />
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          <div className="flex justify-center pb-8">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    className={
-                      currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                    }
-                  />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">1</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">2</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationLink href="#">3</PaginationLink>
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    className="pointer-events-none opacity-50"
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

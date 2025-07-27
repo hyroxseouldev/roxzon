@@ -1,15 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, User, Home, FileText, LogIn, LogOut } from "lucide-react";
+import {
+  Menu,
+  User,
+  Home,
+  FileText,
+  LogIn,
+  LogOut,
+  Settings,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/use-auth";
 
 const Header = () => {
-  const { user, loading, signOut, isAuthenticated } = useAuth();
+  const { user, userProfile, loading, signOut, isAuthenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -33,7 +46,7 @@ const Header = () => {
             <span>홈</span>
           </Link>
           <Link
-            href="/communities"
+            href="/posts"
             className="flex items-center space-x-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <FileText className="h-4 w-4" />
@@ -43,27 +56,35 @@ const Header = () => {
 
         {/* Right Side Actions */}
         <div className="flex items-center space-x-2">
-          {loading ? (
+          {loading && !isAuthenticated ? (
             <div className="h-8 w-8 animate-pulse bg-muted rounded-full" />
           ) : isAuthenticated && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 rounded-full p-0">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={user.user_metadata?.avatar_url || user.user_metadata?.picture} />
+                    <AvatarImage
+                      src={
+                        userProfile?.avatar_url ||
+                        user.user_metadata?.avatar_url ||
+                        user.user_metadata?.picture
+                      }
+                    />
                     <AvatarFallback>
-                      {user.user_metadata?.full_name?.charAt(0) || 
-                       user.user_metadata?.name?.charAt(0) || 
-                       user.email?.charAt(0)?.toUpperCase() || 'U'}
+                      {userProfile?.nickname?.charAt(0) ||
+                        user.user_metadata?.full_name?.charAt(0) ||
+                        user.user_metadata?.name?.charAt(0) ||
+                        user.email?.charAt(0)?.toUpperCase() ||
+                        "U"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href="/communities" className="flex items-center">
-                    <FileText className="mr-2 h-4 w-4" />
-                    <span>커뮤니티</span>
+                  <Link href="/profile" className="flex items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>프로필 수정</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut}>
@@ -102,7 +123,7 @@ const Header = () => {
                   <span>홈</span>
                 </Link>
                 <Link
-                  href="/communities"
+                  href="/posts"
                   className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
                 >
                   <FileText className="h-4 w-4" />
@@ -110,7 +131,11 @@ const Header = () => {
                 </Link>
                 <div className="border-t pt-4">
                   {isAuthenticated && user ? (
-                    <Button variant="ghost" className="w-full justify-start" onClick={signOut}>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={signOut}
+                    >
                       <LogOut className="h-4 w-4 mr-2" />
                       로그아웃
                     </Button>
