@@ -4,7 +4,7 @@
 
 - **프로젝트명**: 하이록스 커뮤니티 플랫폼
 - **목적**: 하이록스 운동을 하는 사람들을 위한 커뮤니티 및 운동 프로그램 공유 플랫폼
-- **기술 스택**: Next.js 15.4.4, Supabase, shadcn, tailwind 4.0, framer motion
+- **기술 스택**: Next.js 15.4.4, Supabase, shadcn, tailwind 4.0, framer motion, react query
 - **타겟 사용자**: 하이록스 운동 참여자 및 관심자
 
 ## 2. 핵심 기능
@@ -17,24 +17,17 @@
 
 ### 2.2 게시글 기능
 
-- **게시글 작성**: 제목, 내용, 사진 업로드 (최대 5장)
-- **운동 프로그램 정보**: 난이도 선택 (초급/중급/고급), 위치, 인스타그램 링크
+- **게시글 작성**: 제목, 내용, 사진 업로드 최대 1장
 - **게시글 목록**: 최신순 정렬로 게시글 리스트 표시
 - **게시글 상세 조회**: 개별 게시글 상세 페이지
 - **게시글 수정/삭제**: 작성자만 가능
+- 토픽을 가지고 있음.
 
 ### 2.3 상호작용 기능
 
 - **좋아요**: 게시글별 좋아요 기능 (중복 불가)
 - **댓글**: 게시글에 댓글 작성/수정/삭제
 - **대댓글**: 댓글에 대한 답글 기능 (1단계만)
-
-### 2.5 운동 프로그램
-
-- **프로그램 소개**: 하이록스 관련 운동 프로그램 게시
-- **난이도 분류**: 초급(Beginner) / 중급(Intermediate) / 고급(Advanced)
-- **위치 정보**: 운동 장소나 지역 정보 표시
-- **소셜 연결**: 인스타그램 링크를 통한 추가 정보 제공
 
 ## 3. 데이터베이스 구조
 
@@ -49,11 +42,24 @@
 - updated_at (Timestamp)
 ```
 
-### 3.2 Posts (게시글)
+### 3.2 Topics (토픽)
+
+```sql
+- id (UUID, Primary Key)
+- name (String, Unique) // 토픽명 (예: 기초동작, 코어운동, 상체운동, 하체운동, 카디오, 스트레칭, 부상예방, 운동팁, 식단, 장비리뷰)
+- description (Text, nullable) // 토픽 설명
+- color (String, nullable) // 토픽 색상 (UI에서 구분용)
+- is_active (Boolean, default: true) // 활성화 상태
+- created_at (Timestamp)
+- updated_at (Timestamp)
+```
+
+### 3.3 Posts (게시글)
 
 ```sql
 - id (UUID, Primary Key)
 - user_id (UUID, Foreign Key → Users.id)
+- topic_id (UUID, Foreign Key → Topics.id)
 - title (String)
 - content (Text)
 - images (JSON Array, nullable)
@@ -67,7 +73,7 @@
 - updated_at (Timestamp)
 ```
 
-### 3.3 Likes (좋아요)
+### 3.4 Likes (좋아요)
 
 ```sql
 - id (UUID, Primary Key)
@@ -77,7 +83,7 @@
 - UNIQUE(user_id, post_id)
 ```
 
-### 3.4 Comments (댓글)
+### 3.5 Comments (댓글)
 
 ```sql
 - id (UUID, Primary Key)
@@ -89,7 +95,7 @@
 - updated_at (Timestamp)
 ```
 
-### 3.7 Storage Buckets
+### 3.6 Storage Buckets
 
 - **post-images**: 게시글 이미지 저장
 - **profile-images**: 프로필 이미지 저장
@@ -98,33 +104,22 @@
 
 ### 4.1 메인 페이지 (/)
 
-- 최신 게시글 목록
-- 통합 검색창 (헤더 고정)
-- 카테고리별 필터링
-- 난이도별 운동 프로그램 추천
-- 간단한 하이록스 소개
+- 히어로 섹션
 
-### 4.2 로그인/회원가입 (/auth)
+### 4.2 로그인/회원가입 (/login)
 
-- 로그인 폼
-- 회원가입 폼
-- 소셜 로그인 (선택사항)
+- 구글 로그인 구현
 
 ### 4.3 게시글 목록 (/posts)
 
 - 전체 게시글 목록
-- 통합 검색 기능 (제목/내용/위치)
-- 고급 검색 옵션 (작성자, 날짜 범위)
-- 카테고리별 필터
-- 난이도별 필터 (초급/중급/고급)
-- 위치별 필터
-- 검색 결과 하이라이팅
+- 토픽별 필터 (기초동작, 코어운동, 상체운동 등)
+- 누르면 게시글로 이동
 
 ### 4.4 게시글 상세 (/posts/[id])
 
 - 게시글 내용
-- 이미지 갤러리
-- 운동 프로그램 정보 (난이도, 위치)
+- 이미지
 - 인스타그램 링크 (클릭 시 새 탭으로 이동)
 - 좋아요 버튼
 - 댓글 섹션
@@ -133,10 +128,7 @@
 
 - 제목/내용 입력
 - 이미지 업로드
-- 카테고리 선택
-- 난이도 선택 (초급/중급/고급)
-- 위치 입력
-- 인스타그램 링크 입력 (선택사항)
+- 토픽 선택 (기초동작, 코어운동, 상체운동 등)
 
 ### 4.8 프로필 (/profile)
 
@@ -152,7 +144,14 @@
 - `POST /api/auth/login` - 로그인
 - `POST /api/auth/logout` - 로그아웃
 
-### 5.2 게시글 관련
+### 5.2 토픽 관련
+
+- `GET /api/topics` - 토픽 목록 조회
+- `POST /api/topics` - 토픽 생성 (관리자만)
+- `PUT /api/topics/[id]` - 토픽 수정 (관리자만)
+- `DELETE /api/topics/[id]` - 토픽 삭제 (관리자만)
+
+### 5.3 게시글 관련
 
 - `GET /api/posts` - 게시글 목록 조회
 - `POST /api/posts` - 게시글 작성
@@ -160,11 +159,11 @@
 - `PUT /api/posts/[id]` - 게시글 수정
 - `DELETE /api/posts/[id]` - 게시글 삭제
 
-### 5.3 좋아요 관련
+### 5.4 좋아요 관련
 
 - `POST /api/posts/[id]/like` - 좋아요 토글
 
-### 5.6 댓글 관련
+### 5.5 댓글 관련
 
 - `GET /api/posts/[id]/comments` - 댓글 목록 조회
 - `POST /api/posts/[id]/comments` - 댓글 작성
@@ -183,16 +182,14 @@
 ### 6.2 Next.js 구조
 
 - App Router 사용
-- Server Components와 Client Components 적절히 활용
+- Client Components 적절히 활용
 - 이미지 최적화 (next/image)
-- Middleware를 통한 인증 보호
-- 검색 성능 최적화 (Debouncing, 캐싱)
 
 ### 6.3 상태 관리
 
-- Zustand 또는 Context API 활용
+- Zustand 활용
 - 사용자 세션 관리
-- 게시글 캐싱
+- useQuery 를 사용한 데이터 캐싱
 
 ## 7. UI/UX 고려사항
 
@@ -205,7 +202,7 @@
 
 - 로딩 상태 표시
 - 에러 처리 및 알림
-- 무한 스크롤 (게시글 목록)
+- 데이터 페칭 실패시 유저에게 안내하는 화면을 작성
 - 이미지 lazy loading
 
 ## 8. 보안 및 성능
@@ -223,7 +220,6 @@
 - 페이지네이션
 - 캐싱 전략
 - 데이터베이스 인덱싱
-- 검색 성능 최적화 (Full-text search, 인덱싱)
 
 ## 9. 개발 우선순위
 
@@ -238,6 +234,7 @@
 1. 좋아요 기능
 2. 댓글 시스템
 3. 이미지 업로드
+4. 토픽별 필터링
 
 ### Phase 3
 

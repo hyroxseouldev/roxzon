@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 
 export default function OnboardingPage() {
-  const { user, loading, loadUserProfile } = useAuth();
+  const { user, loading, refreshProfile } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -120,14 +120,11 @@ export default function OnboardingPage() {
       }
 
       // 먼저 기존 사용자가 있는지 확인
-      const { data: existingUser, error: selectError } = await supabase
+      const { error: selectError } = await supabase
         .from("users")
         .select("*")
         .eq("id", user.id)
         .single();
-
-      console.log("Existing user:", existingUser);
-      console.log("Select error:", selectError);
 
       const userData = {
         id: user.id,
@@ -137,13 +134,10 @@ export default function OnboardingPage() {
         avatar_url: profileData.avatar_url || null,
       };
 
-      console.log("Updating user data:", userData);
-
       let result;
       if (selectError?.code === "PGRST116") {
         // 사용자가 없으면 INSERT
         result = await supabase.from("users").insert(userData);
-        console.log("Insert result:", result);
       } else {
         // 사용자가 있으면 UPDATE
         result = await supabase
@@ -155,7 +149,6 @@ export default function OnboardingPage() {
             updated_at: new Date().toISOString(),
           })
           .eq("id", user.id);
-        console.log("Update result:", result);
       }
 
       if (result.error) {
@@ -164,13 +157,9 @@ export default function OnboardingPage() {
         return;
       }
 
-      console.log("프로필 저장 성공");
-      
       // 헤더의 아바타 업데이트를 위해 프로필 다시 로드
-      if (loadUserProfile) {
-        await loadUserProfile(user.id);
-      }
-      
+      await refreshProfile();
+
       toast.success("프로필이 성공적으로 저장되었습니다!");
       router.push("/");
     } catch (error) {
@@ -224,7 +213,7 @@ export default function OnboardingPage() {
                 type="button"
                 variant="secondary"
                 size="sm"
-                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-zinc-700 hover:bg-zinc-600 text-white border-zinc-600"
+                className="absolute -bottom-1 -right-1 bg-zinc-700 hover:bg-zinc-600 text-white border-zinc-600 rounded-full w-8 h-8 p-0"
                 onClick={triggerFileSelect}
                 disabled={isUploading}
               >

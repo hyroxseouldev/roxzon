@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -8,13 +8,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Upload, Loader2, ArrowLeft } from "lucide-react";
+import { Camera, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
-import Link from "next/link";
 
 export default function ProfilePage() {
-  const { user, loading, loadUserProfile } = useAuth();
+  const { user, userProfile, loading, refreshProfile } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,6 +25,66 @@ export default function ProfilePage() {
     avatar_url: "",
   });
 
+  const loadProfileData = useCallback(async () => {
+    if (!user) return;
+
+    try {
+      setIsLoading(true);
+
+      // AuthProvider에서 이미 로드된 userProfile 사용
+      if (userProfile) {
+        setProfileData({
+          nickname: userProfile.nickname || "",
+          bio: userProfile.bio || "",
+          avatar_url: userProfile.avatar_url || "",
+        });
+      } else {
+        // userProfile이 없으면 직접 DB에서 가져오기
+        const { data: existingUser, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+
+        if (error && error.code !== "PGRST116") {
+          console.error("프로필 로드 오류:", error);
+          toast.error("프로필을 불러오는데 실패했습니다.");
+          return;
+        }
+
+        if (existingUser) {
+          const avatarUrl =
+            existingUser.avatar_url ||
+            user.user_metadata?.avatar_url ||
+            user.user_metadata?.picture ||
+            "";
+
+          setProfileData({
+            nickname: existingUser.nickname || "",
+            bio: existingUser.bio || "",
+            avatar_url: avatarUrl,
+          });
+        } else {
+          // 기존 사용자가 없으면 기본값 설정
+          const avatarUrl =
+            user.user_metadata?.avatar_url || user.user_metadata?.picture || "";
+
+          setProfileData({
+            nickname:
+              user.user_metadata?.full_name || user.user_metadata?.name || "",
+            bio: "",
+            avatar_url: avatarUrl,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("프로필 로드 중 오류:", error);
+      toast.error("프로필을 불러오는데 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user, userProfile]);
+
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
@@ -35,63 +94,7 @@ export default function ProfilePage() {
     if (user) {
       loadProfileData();
     }
-  }, [user, loading, router]);
-
-  const loadProfileData = async () => {
-    if (!user) return;
-
-    try {
-      setIsLoading(true);
-
-      // 사용자 프로필 데이터 가져오기
-      const { data: existingUser, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      if (error && error.code !== "PGRST116") {
-        console.error("프로필 로드 오류:", error);
-        toast.error("프로필을 불러오는데 실패했습니다.");
-        return;
-      }
-
-      if (existingUser) {
-        console.log("Existing user data:", existingUser);
-        console.log("User metadata:", user.user_metadata);
-        const avatarUrl =
-          existingUser.avatar_url ||
-          user.user_metadata?.avatar_url ||
-          user.user_metadata?.picture ||
-          "";
-        console.log("Final avatar URL:", avatarUrl);
-
-        setProfileData({
-          nickname: existingUser.nickname || "",
-          bio: existingUser.bio || "",
-          avatar_url: avatarUrl,
-        });
-      } else {
-        // 기존 사용자가 없으면 기본값 설정
-        console.log("No existing user, using metadata:", user.user_metadata);
-        const avatarUrl =
-          user.user_metadata?.avatar_url || user.user_metadata?.picture || "";
-        console.log("Default avatar URL:", avatarUrl);
-
-        setProfileData({
-          nickname:
-            user.user_metadata?.full_name || user.user_metadata?.name || "",
-          bio: "",
-          avatar_url: avatarUrl,
-        });
-      }
-    } catch (error) {
-      console.error("프로필 로드 중 오류:", error);
-      toast.error("프로필을 불러오는데 실패했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [user, loading, loadProfileData, router]);
 
   const handleImageUpload = async (file: File) => {
     if (!user) return;
@@ -179,9 +182,6 @@ export default function ProfilePage() {
         .eq("id", user.id)
         .single();
 
-      console.log("Existing user:", existingUser);
-      console.log("Select error:", selectError);
-
       const userData = {
         id: user.id,
         email: user.email!,
@@ -190,13 +190,10 @@ export default function ProfilePage() {
         avatar_url: profileData.avatar_url || null,
       };
 
-      console.log("Updating user data:", userData);
-
       let result;
       if (selectError?.code === "PGRST116") {
         // 사용자가 없으면 INSERT
         result = await supabase.from("users").insert(userData);
-        console.log("Insert result:", result);
       } else {
         // 사용자가 있으면 UPDATE
         result = await supabase
@@ -208,7 +205,6 @@ export default function ProfilePage() {
             updated_at: new Date().toISOString(),
           })
           .eq("id", user.id);
-        console.log("Update result:", result);
       }
 
       if (result.error) {
@@ -217,12 +213,8 @@ export default function ProfilePage() {
         return;
       }
 
-      console.log("프로필 저장 성공");
-
       // 헤더의 아바타 업데이트를 위해 프로필 다시 로드
-      if (loadUserProfile && user?.id) {
-        await loadUserProfile(user.id);
-      }
+      await refreshProfile();
 
       toast.success("프로필이 성공적으로 수정되었습니다!");
       router.push("/");
@@ -257,18 +249,6 @@ export default function ProfilePage() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-black">
       <div className="w-full max-w-md bg-zinc-900 rounded-lg shadow-2xl p-8 border border-zinc-800">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <Link href="/">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-zinc-400 hover:text-white"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                돌아가기
-              </Button>
-            </Link>
-          </div>
           <h1 className="text-2xl font-bold text-white mb-2">프로필 수정</h1>
           <p className="text-zinc-400">프로필 정보를 수정하고 저장하세요</p>
         </div>
@@ -287,7 +267,7 @@ export default function ProfilePage() {
                 type="button"
                 variant="secondary"
                 size="sm"
-                className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-zinc-700 hover:bg-zinc-600 text-white border-zinc-600"
+                className="absolute -bottom-1 -right-1 bg-zinc-700 hover:bg-zinc-600 text-white border-zinc-600 rounded-full w-8 h-8 p-0"
                 onClick={triggerFileSelect}
                 disabled={isUploading}
               >

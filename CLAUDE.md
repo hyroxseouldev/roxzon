@@ -83,7 +83,7 @@ The application is designed as a Korean HIIT community with:
 ## Database Schema (Planned)
 
 - **Users**: Profile management with nickname and avatar
-- **Communities**: It is Post, Content with images, difficulty, location, Instagram links
+- **POSTS**: It is Post, Content with images, difficulty, location, Instagram links
 - **Likes**: User-post relationships (unique constraint)
 - **Comments**: Nested comments with parent_id structure
 

@@ -1,6 +1,84 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Rich Text Editor Styles */
+.prose-invert {
+  color: #ffffff;
+}
+
+.prose-invert h2 {
+  color: #ffffff;
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 1.5em 0 0.5em 0;
+}
+
+.prose-invert p {
+  margin: 0.75em 0;
+  line-height: 1.6;
+}
+
+.prose-invert ul,
+.prose-invert ol {
+  margin: 0.75em 0;
+  padding-left: 1.5em;
+}
+
+.prose-invert li {
+  margin: 0.25em 0;
+}
+
+.prose-invert blockquote {
+  border-left: 4px solid #3b82f6;
+  padding-left: 1em;
+  margin: 1em 0;
+  color: #d4d4d8;
+  font-style: italic;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 0 4px 4px 0;
+}
+
+.prose-invert strong {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.prose-invert em {
+  font-style: italic;
+}
+
+.prose-invert code {
+  background: #27272a;
+  color: #fbbf24;
+  padding: 0.125em 0.25em;
+  border-radius: 3px;
+  font-size: 0.875em;
+}
+
+.prose-invert pre {
+  background: #18181b;
+  color: #ffffff;
+  padding: 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.prose-invert pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* Placeholder styles */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #71717a;
+  pointer-events: none;
+  height: 0;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

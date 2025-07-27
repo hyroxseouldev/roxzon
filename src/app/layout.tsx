@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +18,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "하이록스 | 한국 HIIT 운동 커뮤니티",
-  description: "한국의 HIIT 운동 커뮤니티 플랫폼입니다. 운동 프로그램을 공유하고 함께 건강한 라이프스타일을 만들어가세요.",
+  description:
+    "한국의 HIIT 운동 커뮤니티 플랫폼입니다. 운동 프로그램을 공유하고 함께 건강한 라이프스타일을 만들어가세요.",
   keywords: "HIIT, 운동, 커뮤니티, 한국, 피트니스, 건강, 하이록스",
 };
 
@@ -31,12 +33,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
-        <Header />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <Toaster />
+        <Providers>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );
