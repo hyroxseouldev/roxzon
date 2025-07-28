@@ -15,7 +15,7 @@ export default function LoginPage() {
         if (process.env.NODE_ENV === "development") {
           return "http://localhost:3000/";
         }
-        return `${window.location.origin}/`;
+        return `https://${process.env.VERCEL_URL || window.location.host}/`;
       };
 
       const { error } = await supabase.auth.signInWithOAuth({
