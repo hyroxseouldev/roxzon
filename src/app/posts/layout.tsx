@@ -6,6 +6,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, Users } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
+
+// Force dynamic rendering to allow useSearchParams
+export const dynamic = 'force-dynamic';
 
 function TopicSidebar() {
   // 토픽 이름과 ID 매핑
@@ -137,7 +141,9 @@ export default function PostsLayout({
         <div className="grid grid-cols-10 gap-6">
           {/* 좌측 토픽 메뉴 (2/10) */}
           <div className="col-span-2">
-            <TopicSidebar />
+            <Suspense fallback={<div>Loading topics...</div>}>
+              <TopicSidebar />
+            </Suspense>
           </div>
 
           {/* 중앙 메인 컨텐츠 (5/10) */}
@@ -145,7 +151,9 @@ export default function PostsLayout({
 
           {/* 우측 토픽 정보 (3/10) */}
           <div className="col-span-3">
-            <RightSidebar />
+            <Suspense fallback={<div>Loading sidebar...</div>}>
+              <RightSidebar />
+            </Suspense>
           </div>
         </div>
       </div>

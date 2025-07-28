@@ -2,7 +2,6 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { usePosts } from "@/hooks/use-posts";
-import ProtectedRoute from "@/components/protected-route";
 import { PostCard } from "@/components/post-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -12,14 +11,14 @@ import {
   Plus,
   AlertCircle,
   RefreshCw,
-  TrendingUp,
-  Users,
   MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
+// import { dynamic } from "next/dynamic";
 
-export default function PostsPage() {
+function PostsContent() {
   // 토픽 이름과 ID 매핑
   const topicMapping = {
     자유게시판: "0a29a8e9-c6ab-4cb9-8e3b-0cd920c5cbd8",
@@ -217,5 +216,16 @@ export default function PostsPage() {
         )}
       </div>
     </>
+  );
+}
+
+// Force dynamic rendering to allow useSearchParams
+export const dynamic = 'force-dynamic';
+
+export default function PostsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PostsContent />
+    </Suspense>
   );
 }

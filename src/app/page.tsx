@@ -1,35 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowRight,
-  Target,
-  MapPin,
-  Heart,
-  MessageCircle,
-  User,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { BackgroundPaths } from "@/components/ui/background-path";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
@@ -48,10 +21,10 @@ export default function Home() {
 
     checkProfile();
   }, [user, loading, isAuthenticated, checkUserProfile, router]);
-  const currentPage = 1;
-  const totalPages = 5;
+  // const currentPage = 1;
+  // const totalPages = 5;
 
-  const communityPosts = [
+  /* const communityPosts = [
     {
       id: 1,
       title: "15분 하체 집중 HIIT",
@@ -252,7 +225,7 @@ export default function Home() {
       comments: 7,
       timeAgo: "1주 전",
     },
-  ];
+  ]; */
 
   return (
     <div className="space-y-16">

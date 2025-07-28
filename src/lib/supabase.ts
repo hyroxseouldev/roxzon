@@ -6,9 +6,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Types for better TypeScript support
-export type Database = {
-  // Add your database types here as you create tables
-};
+export type Database = Record<string, unknown>;
 
 // Helper functions for common operations
 export const auth = supabase.auth;
