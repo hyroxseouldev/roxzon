@@ -11,10 +11,17 @@ export default function LoginPage() {
     try {
       setIsLoading(true);
 
+      const getRedirectUrl = () => {
+        if (process.env.NODE_ENV === "development") {
+          return "http://localhost:3000/";
+        }
+        return `https://${process.env.VERCEL_URL || window.location.host}/`;
+      };
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: getRedirectUrl(),
           queryParams: {
             access_type: "offline",
             prompt: "consent",
