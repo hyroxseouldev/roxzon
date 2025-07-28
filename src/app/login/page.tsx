@@ -12,15 +12,10 @@ export default function LoginPage() {
       setIsLoading(true);
 
       const getRedirectUrl = () => {
-        const isLocalhost =
-          window.location.hostname === "localhost" ||
-          window.location.hostname === "127.0.0.1" ||
-          window.location.hostname.includes("localhost");
-
-        if (isLocalhost) {
+        if (process.env.NODE_ENV === "development") {
           return "http://localhost:3000/";
         }
-        return `${window.location.origin}/`;
+        return process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
       };
 
       const { error } = await supabase.auth.signInWithOAuth({
